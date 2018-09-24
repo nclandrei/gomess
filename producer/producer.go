@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/bitly/go-nsq"
 	"log"
 	"sync"
@@ -13,8 +14,9 @@ const (
 
 func main() {
 	var wg sync.WaitGroup
+	var inc int
 	config := nsq.NewConfig()
-	producer, err := nsq.NewProducer(":20497", config)
+	producer, err := nsq.NewProducer("127.0.0.1:4150", config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,7 +24,9 @@ func main() {
 	go func() {
 		defer wg.Done()
 		for {
-			producer.Publish(topic, []byte(`this is a test`))
+			producer.Publish(topic, []byte(fmt.Sprintf("message #%d", inc)))
+			inc++
+			fmt.Println("message sent...")
 			time.Sleep(1 * time.Second)
 		}
 	}()
